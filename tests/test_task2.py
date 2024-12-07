@@ -13,3 +13,5 @@ def test_task2():
         )
         == "  fl  k  c      "
     )
+    assert getTask2("   ", "", vowelsLetters) == "   "
+    assert getTask2("   yuiokl ykl ", "ykl", vowelsLetters) == "   ykl  "
