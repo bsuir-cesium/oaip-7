@@ -14,7 +14,7 @@ def getLastWord(s: str) -> str:
     return s[0 : lastIndex + 1]
 
 
-def getTask1(s: str, lastWord: str, alphabet: str) -> str:
+def getTask1(s: str, lastWord: str, alphabet: str, delimiter: str = " ") -> str:
     """Напечатать слова, отличные от последнего слова, если они
     удовлетворяют следующему условию: слово совпадает
     с конечным отрезком латинского алфавита (z, yz, xyz и т.д.).
@@ -30,13 +30,13 @@ def getTask1(s: str, lastWord: str, alphabet: str) -> str:
                 index = alphabet.find(tempStr)
                 if (index != -1) and (alphabet[index:] == tempStr):
                     resultStr += alphabet[index:]
-            resultStr += "-"
+            resultStr += delimiter
             tempStr = ""
 
     return resultStr
 
 
-def getTask2(s: str, lastWord: str, vowelsLetters: str) -> str:
+def getTask2(s: str, lastWord: str, vowelsLetters: str, delimiter: str = " ") -> str:
     """Напечатать все слова, отличные от последнего слова,
     удаляя все гласные буквы.
     """
@@ -51,7 +51,7 @@ def getTask2(s: str, lastWord: str, vowelsLetters: str) -> str:
                 for j in range(len(tempStr)):
                     if tempStr[j] not in vowelsLetters:
                         resultStr += tempStr[j]
-            resultStr += "-"
+            resultStr += delimiter
             tempStr = ""
 
     return resultStr
@@ -61,8 +61,8 @@ def main():
     alphabet: str = "abcdefghijklmnopqrstuvwxyz"
     vowelsLetters: str = "AEIOUaeiou"
     s: str
-    task1: str = ""
-    task2: str = ""
+    s1: str = ""
+    s2: str = ""
     lastWord: str
 
     print("Введите строку: ")
@@ -70,11 +70,11 @@ def main():
 
     lastWord = getLastWord(s)
 
-    task1 = getTask1(s, lastWord, alphabet)
-    task2 = getTask2(s, lastWord, vowelsLetters)
+    s1 = getTask1(s, lastWord, alphabet)
+    s2 = getTask2(s, lastWord, vowelsLetters)
 
-    print(task1, len(task1))
-    print(task2, len(task2))
+    print(s1, len(s1))
+    print(s2, len(s2))
 
 
 if __name__ == "__main__":
