@@ -1,0 +1,1 @@
+program lab7_2;

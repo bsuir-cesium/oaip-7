@@ -13,6 +13,9 @@ solve2:
 	@echo "\n\n---===---\nbuild done \ntrying to run:\n---===---\n\n"
 	./bin/solve2.o
 
+solve2-py:
+	python -m src.solve2
+
 install:
 	pip install -r requirements.txt
 
