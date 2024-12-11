@@ -57,7 +57,6 @@ begin
       if not (tempStr = lastWord) then
       begin
         index := Pos(tempStr, alphabet);
-        writeln(index);
         if (index <> 0) and (Copy(alphabet, index, Length(alphabet) + 1 - index) = tempStr) then
         begin
           resultStr := resultStr + Copy(alphabet, index, Length(alphabet) + 1 - index);
