@@ -15,30 +15,34 @@ var
 
 function GetLastWord(s: TString): TString;
 var
-  wordIsBegun: Boolean;
+  wordIsBegun, exitFlag: Boolean;
   i, lastIndex: Integer;
 begin
+  exitFlag := False;
   wordIsBegun := False;
   lastIndex := Length(s);
-  for i := Length(s) downto 1 do
+  i := Length(s);
+  while (i >= 1) and not exitFlag do
   begin
     if (s[i] <> ' ') and (not wordIsBegun) then
     begin
       wordIsBegun := True;
       lastIndex := i;
-    end      
+    end
     else if (s[i] = ' ') and (wordIsBegun) then
     begin
-      Exit(Copy(s, i + 1, lastIndex - i));
+      GetLastWord := Copy(s, i + 1, lastIndex - i);
+      exitFlag := True;
     end
     else if (s[i] = ' ') then
     begin
       lastIndex := i;
     end;
+    i := i - 1;
   end;
-  if wordIsBegun then
+  if wordIsBegun and not exitFlag then
     GetLastWord := Copy(s, 1, lastIndex)
-  else
+  else if not wordIsBegun then
     GetLastWord := '';
 end;
 
@@ -57,22 +61,28 @@ begin
     end
     else
     begin
-      if not (tempStr = lastWord) then
+      if not(tempStr = lastWord) then
       begin
         index := Pos(tempStr, alphabet);
-        if (index <> 0) and (Copy(alphabet, index, Length(alphabet) + 1 - index) = tempStr) then
+        if (index <> 0) and (Copy(alphabet, index, Length(alphabet) + 1 - index)
+          = tempStr) then
         begin
-          resultStr := resultStr + Copy(alphabet, index, Length(alphabet) + 1 - index) + ' ';
+          resultStr := resultStr + Copy(alphabet, index, Length(alphabet) + 1 -
+            index) + ' ';
         end;
       end;
       tempStr := '';
     end;
   end;
 
-  GetTask1 := resultStr;
+  if Length(resultStr) > 0 then
+    GetTask1 := resultStr
+  else
+    GetTask1 := 'Строка пустая';
 end;
 
-function GetTask2(s: TString; lastWord: TString; vowelsLetters: TString): TString;
+function GetTask2(s: TString; lastWord: TString;
+  vowelsLetters: TString): TString;
 var
   resultStr, tempStr: TString;
   i, j: Integer;
@@ -87,7 +97,7 @@ begin
     end
     else
     begin
-      if not (tempStr = lastWord) and (Length(tempStr) > 0) then
+      if not(tempStr = lastWord) and (Length(tempStr) > 0) then
       begin
         for j := 1 to Length(tempStr) do
         begin
@@ -102,7 +112,10 @@ begin
     end;
   end;
 
-  GetTask2 := resultStr;
+  if Length(resultStr) > 0 then
+    GetTask2 := resultStr
+  else
+    GetTask2 := 'Строка пустая';
 end;
 
 begin
@@ -111,13 +124,8 @@ begin
   lastWord := GetLastWord(s);
   s1 := GetTask1(s, lastWord, alphabet);
   s2 := GetTask2(s, lastWord, vowelsLetters);
-  if length(s1) > 0 then
-    writeln('п.1: ', s1)
-  else
-    writeln('Строка пустая');
-  
-  if length(s2) > 0 then
-    writeln('п.2: ', s2)
-  else
-    writeln('Строка пустая');
+  writeln('п.1: ', s1);
+  writeln('п.2: ', s2);
+  ReadLn;
+
 end.
