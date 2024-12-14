@@ -36,7 +36,10 @@ begin
       lastIndex := i;
     end;
   end;
-  GetLastWord := Copy(s, 1, lastIndex);
+  if wordIsBegun then
+    GetLastWord := Copy(s, 1, lastIndex)
+  else
+    GetLastWord := '';
 end;
 
 function GetTask1(s: TString; lastWord: TString; alphabet: TString): TString;
@@ -59,10 +62,9 @@ begin
         index := Pos(tempStr, alphabet);
         if (index <> 0) and (Copy(alphabet, index, Length(alphabet) + 1 - index) = tempStr) then
         begin
-          resultStr := resultStr + Copy(alphabet, index, Length(alphabet) + 1 - index);
+          resultStr := resultStr + Copy(alphabet, index, Length(alphabet) + 1 - index) + ' ';
         end;
       end;
-      resultStr := resultStr + ' ';
       tempStr := '';
     end;
   end;
@@ -85,7 +87,7 @@ begin
     end
     else
     begin
-      if not (tempStr = lastWord) then
+      if not (tempStr = lastWord) and (Length(tempStr) > 0) then
       begin
         for j := 1 to Length(tempStr) do
         begin
@@ -94,8 +96,8 @@ begin
             resultStr := resultStr + tempStr[j];
           end;
         end;
+        resultStr := resultStr + ' ';
       end;
-      resultStr := resultStr + ' ';
       tempStr := '';
     end;
   end;
@@ -109,6 +111,13 @@ begin
   lastWord := GetLastWord(s);
   s1 := GetTask1(s, lastWord, alphabet);
   s2 := GetTask2(s, lastWord, vowelsLetters);
-  writeln(s1, ' ', Length(s1));
-  writeln(s2, ' ', Length(s2));
+  if length(s1) > 0 then
+    writeln('п.1: ', s1)
+  else
+    writeln('Строка пустая');
+  
+  if length(s2) > 0 then
+    writeln('п.2: ', s2)
+  else
+    writeln('Строка пустая');
 end.
