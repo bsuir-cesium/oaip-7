@@ -13,14 +13,14 @@ const
     ' ,-:;АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя.?!';
 
 type
-  TString = String[N];
+  TString = String;
   TMas = array [1 .. N] of TString;
   TDict = array [1 .. wordsCount] of TString;
 
 procedure LoadDict(fname: TString; var isCorrect: boolean; var dict: TDict);
 var
   f: textfile;
-  s: string[200];
+  s: TString;
   i: integer;
 begin
   i := 0;
@@ -32,7 +32,6 @@ begin
     begin
       Inc(i);
       Readln(f, s);
-      s := utf8ToAnsi(s);
       dict[i] := s;
     end;
     CloseFile(f);
@@ -86,7 +85,7 @@ begin
       index := ((high + low) div 2);
       if (high = low) and (dict[high] <> words[i]) then
       begin
-        if ('А' <= words[i][1]) and (words[i][1] <= 'Я') and (i = 1) then
+        if (i = 1) and not(extra) then
         begin
           words[i] := ansilowercase(words[i]);
           extra := True;
@@ -94,20 +93,23 @@ begin
         end
         else
         begin
+          writeln('(debug) Not found: ', words[i]);
+          extra := False;
           notFound := True;
           inSearch := false;
         end;
       end
       else if dict[index] = words[i] then
-        inSearch := false
+      begin
+        inSearch := False;
+        extra := False;
+      end
       else if dict[index] < words[i] then
         low := index + 1
       else if dict[index] > words[i] then
         high := index;
     end;
-    if extra then
-      extra := false
-    else
+    if not extra then
       Inc(i);
   end;
   CheckInDict := not notFound;
@@ -141,6 +143,8 @@ begin
       spacesFlag := false;
       CheckString := false;
     end
+    else if (s[i] = ' ') and (Pos(s[i + 1], ',.:;') <> 0) then
+      CheckString := false
     else if s[i] = ' ' then
       Inc(spaces)
     else
@@ -178,26 +182,102 @@ begin
   formatString := formatted;
 end;
 
-procedure Justifyline(const words: TMas; const wordsLen, k: integer;
-  var wordsCentered: TMas; var len: integer);
+function stretchline(line: TString; k: integer): string;
 var
-  i, voids, currentLen, currentWords: integer;
+  words: array of TString;
+  i, start, wordcount, totalspaces, spaceslots, extraspaces, spaceperslot: integer;
+  newline: TString;
 begin
-  currentLen := 0;
-  for I := 1 to wordsLen do
+  line := trim(line);
+  wordcount := 0;
+  i := 1;
+  while i <= Length(line) do
   begin
-     if currentLen + Length() then
-
+    while (i <= Length(line)) and (line[i] = ' ') do
+      Inc(i);
+    if i <= Length(line) then
+    begin
+      start := i;
+      while (i <= Length(line)) and (line[i] <> ' ') do
+        Inc(i);
+      Inc(wordcount);
+      setlength(words, wordcount);
+      words[wordcount - 1] := Copy(line, start, i - start);
+    end;
   end;
+  if wordcount > 1 then
+  begin
+    totalspaces := k - Length(line) + (wordcount - 1);
+    spaceslots := wordcount - 1;
+    spaceperslot := totalspaces div spaceslots;
+    extraspaces := totalspaces mod spaceslots;
+  end
+  else
+  begin
+    spaceperslot := 0;
+    extraspaces := 0;
+  end;
+  newline := '';
+  for i := 0 to wordcount - 2 do
+  begin
+    newline := newline + words[i] + stringofchar(' ', spaceperslot);
+    if extraspaces > 0 then
+    begin
+      newline := newline + ' ';
+      dec(extraspaces);
+    end;
+  end;
+  newline := newline + words[wordcount - 1];
+  stretchline := newline;
+end;
 
+procedure stretchWords(const words: TMas; const len, k: integer;
+  var lines: TMas; var count: integer; var available: boolean);
+var
+  i: integer;
+  line, word: TString;
+begin
+  available := True;
+  count := 1;
+  line := '';
+  word := '';
+  for i := 1 to len do
+  begin
+    if Length(words[i]) > k then
+      available := false;
+    if Length(words[i]) = k then
+    begin
+      if Length(line) > 0 then
+      begin
+        lines[count] := stretchline(line, k);
+        Inc(count);
+        line := '';
+      end;
+      lines[count] := stretchline(words[i], k);
+      Inc(count);
+    end
+    else if (Length(line) + Length(words[i]) + 1 > k) and available then
+    begin
+      lines[count] := stretchline(line, k);
+      Inc(count);
+      line := words[i] + ' ';
+    end
+    else
+    begin
+      line := line + words[i] + ' ';
+    end;
+
+    if (i = len) and (Length(line) > 0) and available then
+      lines[count] := stretchline(line, k);
+  end;
 end;
 
 var
   s, formattedStr: TString;
   dict: TDict;
-  words: TMas;
-  wordsLen, i: integer;
-  isCorrect, isInDict: boolean;
+  words, lines: TMas;
+  k, wordsLen, linesCount, i: integer;
+  isCorrect: boolean;
 
 begin
   isCorrect := True;
@@ -208,15 +288,30 @@ begin
     Readln;
     exit;
   end;
-  Write('Enter string: ');
+  Write('Введите строку: ');
   Readln(s);
+  Write('Введите k: ');
+  Readln(k);
+  writeln;
   if CheckString(s, UpperLetters, approvedSymbols, dict) then
     writeln('Строка является предложением на русском языке')
   else
     writeln('Строка не является предложением на русском языке');
-
   formattedStr := formatString(s, approvedSymbols);
-  writeln(formattedStr);
+  writeln;
+  writeln('Отформатированная строка: ', formattedStr);
+
+  getWords(formattedStr, Copy(approvedSymbols, 2, 73), words, wordsLen);
+  stretchWords(words, wordsLen, k, lines, linesCount, isCorrect);
+  writeln;
+  if isCorrect then
+  begin
+    writeln('Растянутая в ширину по k:');
+    for i := 1 to linesCount do
+      writeln(lines[i]);
+  end
+  else
+    writeln('Невозможно растянуть строку');
   Readln;
 
 end.
