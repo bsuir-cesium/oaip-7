@@ -1,2 +1,8 @@
 *.o
 __pycache__/
+*.exe
+*.res
+*.dproj.local
+*.identcache
+__history/
+__recovery/
