@@ -1,6 +1,5 @@
 *.o
 __pycache__/
-*.exe
 *.res
 *.dproj.local
 *.identcache
