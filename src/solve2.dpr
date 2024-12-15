@@ -301,7 +301,7 @@ begin
   writeln;
   writeln('Отформатированная строка: ', formattedStr);
 
-  getWords(formattedStr, Copy(approvedSymbols, 2, 73), words, wordsLen);
+  getWords(formattedStr, Copy(approvedSymbols, 2, 73) + '*', words, wordsLen);
   stretchWords(words, wordsLen, k, lines, linesCount, isCorrect);
   writeln;
   if isCorrect then
